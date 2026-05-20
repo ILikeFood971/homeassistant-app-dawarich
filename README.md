@@ -1,6 +1,6 @@
 # Dawarich Home Assistant App
 
-**Current Dawarich version: 1.7.7** ([release notes](https://github.com/Freika/dawarich/releases/tag/1.7.7))
+**Current Dawarich version: 1.7.8** ([release notes](https://github.com/Freika/dawarich/releases/tag/1.7.8))
 
 [![HA App][ha-app-badge]][ha-app-link]
 
@@ -43,7 +43,7 @@ In the app configuration tab, set at minimum:
 | Option | What to set |
 |---|---|
 | `admin_email` | Your login email (default: `admin@dawarich.local`) |
-| `admin_password` | Your login password (**change from `changeme`!**) |
+| `admin_password` | Your login password (**change from `changemeplease`!**) |
 | `time_zone` | Your timezone, e.g. `America/New_York`, `Europe/Berlin` |
 
 ### 3. Start
@@ -81,8 +81,8 @@ ha_tracked_entities: "device_tracker.my_phone:Alice, device_tracker.partner_phon
 ```
 
 This automatically creates:
-- `alice@dawarich.local` (password: `password`)
-- `bob@dawarich.local` (password: `password`)
+- `alice@dawarich.local` (password: `changemeplease`)
+- `bob@dawarich.local` (password: `changemeplease`)
 
 Each device's location data goes to its own user. Users can change their password after first login via the Dawarich settings page. Once multiple users exist, you can use Dawarich's built-in **Family** feature to see everyone on a shared map with different colors.
 
@@ -113,7 +113,7 @@ Duplicate locations (same lat/lon) are always skipped. Additionally, positions c
 | Option | Default | Description |
 |---|---|---|
 | `admin_email` | `admin@dawarich.local` | Email address used to log into Dawarich as admin. |
-| `admin_password` | `changeme` | Password for the admin account. Only used on first creation — changing this later won't update an existing account. Change your password through the Dawarich UI instead. |
+| `admin_password` | `changemeplease` | Password for the admin account. Only used on first creation — changing this later won't update an existing account. Change your password through the Dawarich UI instead. |
 | `time_zone` | `Etc/UTC` | Timezone for displaying dates and times in the UI. Uses standard [tz database names](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones) (e.g. `America/New_York`, `Europe/Berlin`, `Asia/Tokyo`). |
 | `database_password` | `dawarich` | Password for the internal PostgreSQL database. Only relevant inside the container — not exposed externally. Changing this after first setup requires manual database migration. |
 | `application_hosts` | `homeassistant.local,localhost` | Comma-separated list of hostnames/IPs that Rails accepts requests from. Only needed when accessing Dawarich directly on port 3000. Ingress access (via the sidebar) works regardless of this setting. Add your HA IP if you get "blocked host" errors, e.g. `homeassistant.local,localhost,192.168.1.100`. |

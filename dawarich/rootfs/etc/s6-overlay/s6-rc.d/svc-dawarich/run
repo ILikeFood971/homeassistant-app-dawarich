@@ -96,7 +96,7 @@ if [ -n "$HA_TRACKED_ENTITIES" ]; then
 
     for name in "${!USER_ENTITIES[@]}"; do
       email="${name}@dawarich.local"
-      password="password"
+      password="changemeplease"
       entities="${USER_ENTITIES[$name]}"
 
       RUBY_SCRIPT+="begin\n"

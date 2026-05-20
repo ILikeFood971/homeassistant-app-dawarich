@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.7.8-1
+
+- Upgrade base image to Dawarich 1.7.8 — see upstream [1.7.8](https://github.com/Freika/dawarich/releases/tag/1.7.8) release notes
+- Fix multi-user creation failing with "Password is too short" — default password for auto-created users (and the `admin_password` config default) is now `changemeplease` (14 chars), meeting Dawarich's 12-char minimum
+
 ## 1.7.7-1
 
 - Upgrade base image to Dawarich 1.7.7 — see upstream [1.7.2](https://github.com/Freika/dawarich/releases/tag/1.7.2), [1.7.3](https://github.com/Freika/dawarich/releases/tag/1.7.3), [1.7.4](https://github.com/Freika/dawarich/releases/tag/1.7.4), [1.7.5](https://github.com/Freika/dawarich/releases/tag/1.7.5), [1.7.6](https://github.com/Freika/dawarich/releases/tag/1.7.6), and [1.7.7](https://github.com/Freika/dawarich/releases/tag/1.7.7) release notes

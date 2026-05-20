@@ -28,7 +28,7 @@ Everything is bundled into a single app container:
 | Option | Default | Description |
 |---|---|---|
 | `admin_email` | `admin@dawarich.local` | Email address used to log into Dawarich as admin. |
-| `admin_password` | `changeme` | Password for the admin account. **Change this!** Only used on first creation — change password through the Dawarich UI after that. |
+| `admin_password` | `changemeplease` | Password for the admin account. **Change this!** Only used on first creation — change password through the Dawarich UI after that. |
 | `time_zone` | `Etc/UTC` | Timezone for the application (e.g., `America/New_York`, `Europe/Berlin`). |
 | `database_password` | `dawarich` | Internal PostgreSQL password. Not exposed externally. |
 | `application_hosts` | `homeassistant.local,localhost` | Comma-separated hostnames/IPs Rails accepts. Only needed for direct port 3000 access — ingress works without it. Add your HA IP if you get "blocked host" errors. |
@@ -53,7 +53,7 @@ ha_tracked_entities: "device_tracker.my_phone"
 ha_tracked_entities: "device_tracker.my_phone:Alice, device_tracker.partner_phone:Bob"
 ```
 
-This creates `alice@dawarich.local` and `bob@dawarich.local` with default password `password`. Each device's location data is sent to its own user. Users can change their password after first login via the Dawarich settings page. Once multiple users exist, you can use Dawarich's built-in **Family** feature to see everyone on a shared map with different colors.
+This creates `alice@dawarich.local` and `bob@dawarich.local` with default password `changemeplease`. Each device's location data is sent to its own user. Users can change their password after first login via the Dawarich settings page. Once multiple users exist, you can use Dawarich's built-in **Family** feature to see everyone on a shared map with different colors.
 
 Entities without a `:Name` suffix use the admin user. You can mix both styles:
 ```

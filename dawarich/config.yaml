@@ -1,5 +1,5 @@
 name: Dawarich
-version: "1.7.7-1"
+version: "1.7.8-1"
 slug: dawarich
 description: Self-hosted location tracking — Google Timeline alternative
 url: https://github.com/thomdev-j/homeassistant-app-dawarich
@@ -35,7 +35,7 @@ options:
   application_hosts: "homeassistant.local,localhost"
   background_processing_concurrency: 5
   admin_email: "admin@dawarich.local"
-  admin_password: "changeme"
+  admin_password: "changemeplease"
   ha_tracked_entities: ""
   ha_min_distance: 10
   reverse_geocoding: false
