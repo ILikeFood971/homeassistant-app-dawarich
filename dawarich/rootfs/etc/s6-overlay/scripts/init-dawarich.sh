@@ -46,12 +46,15 @@ if bashio::config.true 'reverse_geocoding'; then
     bashio::log.info "Reverse geocoding: enabled (Geoapify)"
     # Verify Geoapify API key works
     GEOAPIFY_TEST_URL="https://api.geoapify.com/v1/geocode/reverse?lat=48.8584&lon=2.2945&apiKey=${GEOAPIFY_KEY}"
-    GEOAPIFY_RESPONSE=$(curl -sf "${GEOAPIFY_TEST_URL}" 2>&1) || true
+    # Force IPv4 to mirror the path Ruby's geocoder takes (see /etc/gai.conf).
+    # A plain curl uses Happy Eyeballs and can succeed over IPv4 even when IPv6
+    # egress is dead, masking the failure the real geocoding jobs would hit.
+    GEOAPIFY_RESPONSE=$(curl -4 -sf "${GEOAPIFY_TEST_URL}" 2>&1) || true
     GEOAPIFY_CITY=$(echo "$GEOAPIFY_RESPONSE" | jq -r '.features[0].properties.city // empty' 2>/dev/null)
     if [ -n "$GEOAPIFY_CITY" ]; then
       bashio::log.info "Reverse geocoding: API reachable (test: ${GEOAPIFY_CITY})"
     else
-      GEOAPIFY_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "${GEOAPIFY_TEST_URL}" 2>/dev/null)
+      GEOAPIFY_HTTP_CODE=$(curl -4 -s -o /dev/null -w "%{http_code}" "${GEOAPIFY_TEST_URL}" 2>/dev/null)
       bashio::log.warning "Reverse geocoding: Geoapify API test failed (HTTP ${GEOAPIFY_HTTP_CODE})"
       bashio::log.debug "Reverse geocoding: response: ${GEOAPIFY_RESPONSE}"
     fi

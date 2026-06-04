@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.11-3
+
+- Fix reverse geocoding failing with `Geocoder::NetworkError` on networks that advertise IPv6 but have no working IPv6 egress. `api.geoapify.com` is Cloudflare-fronted and publishes AAAA records; Ruby's geocoder connected to the dead IPv6 address first and failed every job, while `curl` (and the startup healthcheck) silently fell back to IPv4 via Happy Eyeballs. The container now prefers IPv4 (`/etc/gai.conf`), so the geocoder resolves IPv4 first; IPv6 is only reordered, not disabled. The startup Geoapify healthcheck now forces IPv4 so it reflects the path the geocoder actually takes ([#11](https://github.com/thomdev-j/homeassistant-app-dawarich/issues/11))
+
 ## 1.7.11-2
 
 - Fix imports failing with "Unknown error" / "No files were successfully uploaded" on files larger than ~1 MB. The bundled nginx proxy had no `client_max_body_size` set, so it fell back to the 1 MB default and rejected the ActiveStorage upload with HTTP 413 (`client intended to send too large body`). The limit is now removed and large upload bodies stream straight to Rails instead of buffering into the RAM-backed tmpfs ([#10](https://github.com/thomdev-j/homeassistant-app-dawarich/issues/10))
