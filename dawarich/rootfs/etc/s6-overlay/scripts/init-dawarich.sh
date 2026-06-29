@@ -102,10 +102,12 @@ fi
 
 # --- Ingress auth secret: only used to trust Home Assistant ingress headers ---
 if [ -f /data/dawarich/ingress_auth_secret ]; then
-  cat /data/dawarich/ingress_auth_secret > /var/run/s6/container_environment/INGRESS_AUTH_SECRET
+  INGRESS_AUTH_SECRET="$(cat /data/dawarich/ingress_auth_secret)"
 else
-  openssl rand -hex 32 | tee /data/dawarich/ingress_auth_secret > /var/run/s6/container_environment/INGRESS_AUTH_SECRET
+  INGRESS_AUTH_SECRET="$(openssl rand -hex 32)"
+  printf '%s' "$INGRESS_AUTH_SECRET" > /data/dawarich/ingress_auth_secret
 fi
+printf '%s' "$INGRESS_AUTH_SECRET" > /var/run/s6/container_environment/INGRESS_AUTH_SECRET
 
 # --- PostgreSQL init on first run ---
 if [ ! -f /data/postgres/PG_VERSION ]; then
