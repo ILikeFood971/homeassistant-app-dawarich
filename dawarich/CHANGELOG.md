@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.9.2-1
+
+- Upgrade base image to Dawarich 1.9.2 — see upstream [1.9.2](https://github.com/Freika/dawarich/releases/tag/1.9.2) release notes
+
 ## 1.7.11-3
 
 - Fix reverse geocoding failing with `Geocoder::NetworkError` on networks that advertise IPv6 but have no working IPv6 egress. `api.geoapify.com` is Cloudflare-fronted and publishes AAAA records; Ruby's geocoder connected to the dead IPv6 address first and failed every job, while `curl` (and the startup healthcheck) silently fell back to IPv4 via Happy Eyeballs. The container now prefers IPv4 (`/etc/gai.conf`), so the geocoder resolves IPv4 first; IPv6 is only reordered, not disabled. The startup Geoapify healthcheck now forces IPv4 so it reflects the path the geocoder actually takes ([#11](https://github.com/thomdev-j/homeassistant-app-dawarich/issues/11))
