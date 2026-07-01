@@ -4,7 +4,7 @@
 
 [![HA App][ha-app-badge]][ha-app-link]
 
-[![Add App Repository to My Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/ILikeFood971/homeassistant-app-dawarich)
+[![Add App Repository to My Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https://github.com/jonlarson13/homeassistant-app-dawarich)
 
 ![Dawarich running inside Home Assistant](images/screenshot.jpg)
 
@@ -16,7 +16,7 @@
 
 - **Zero setup** — PostgreSQL, Redis, and all dependencies bundled in a single app container
 - **Automatic HA device tracking** — subscribes to real-time state changes and pushes GPS data to Dawarich instantly
-- **Multi-device, multi-user** — assign devices to separate Dawarich users per household member via app config
+- **Multi-device, multi-user** — map devices to each household member's own Home Assistant account via app config
 - **HA Ingress** — access the UI securely through the Home Assistant sidebar, no extra ports needed
 - **Full backups** — integrates with HA's backup system including automatic PostgreSQL dumps
 
@@ -74,28 +74,28 @@ ha_tracked_entities: "device_tracker.my_phone, device_tracker.my_tablet"
 
 ### Multiple household members
 
-Add a `:Name` suffix to create a separate Dawarich user per person:
+Add a `:ha_user_id` suffix to route a device to a specific person's account — **this must be their actual Home Assistant user ID, not their display name.** Find it under Home Assistant's **Settings → People → Users**, click the person, and copy the ID from the URL (`/config/users/edit/<user_id>`).
 
 ```yaml
-ha_tracked_entities: "device_tracker.my_phone:Alice, device_tracker.partner_phone:Bob"
+ha_tracked_entities: "device_tracker.my_phone:<alices_ha_user_id>, device_tracker.partner_phone:<bobs_ha_user_id>"
 ```
 
-This automatically creates:
-- `alice@dawarich.local` (password: `changemeplease`)
-- `bob@dawarich.local` (password: `changemeplease`)
+The addon builds a `ha-<user_id>@homeassistant.local` account for each ID — the **same account** that person is automatically signed into when they open Dawarich via HA ingress. This means their tracked location data and their logged-in view are the same account; a plain name (e.g. `:Alice`) would instead create an unrelated, disconnected account.
 
-Each device's location data goes to its own user. Users can change their password after first login via the Dawarich settings page. Once multiple users exist, you can use Dawarich's built-in **Family** feature to see everyone on a shared map with different colors.
+If that account doesn't exist yet (they haven't opened the ingress panel), it's created here with a hardcoded fallback password — the same literal default shown for `admin_password` above, but not tied to that config option. It's only usable for direct, non-ingress login (port 3000) and can be changed via the Dawarich UI afterward; ingress sign-in never uses it.
 
-Two devices for the same person share one user — just use the same name:
+Each device's location data goes to its own user. Once multiple users exist, you can use Dawarich's built-in **Family** feature to see everyone on a shared map with different colors.
+
+Two devices for the same person share one user — just use the same HA user ID:
 
 ```yaml
-ha_tracked_entities: "device_tracker.alices_phone:Alice, device_tracker.alices_watch:Alice"
+ha_tracked_entities: "device_tracker.alices_phone:<alices_ha_user_id>, device_tracker.alices_watch:<alices_ha_user_id>"
 ```
 
-You can mix named and unnamed entities — unnamed ones use the admin account:
+You can mix mapped and unmapped entities — unmapped ones use the admin account:
 
 ```yaml
-ha_tracked_entities: "device_tracker.my_phone:Alice, device_tracker.tablet"
+ha_tracked_entities: "device_tracker.my_phone:<alices_ha_user_id>, device_tracker.tablet"
 ```
 
 ### Real-time tracking
@@ -123,7 +123,7 @@ Duplicate locations (same lat/lon) are always skipped. Additionally, positions c
 
 | Option | Default | Description |
 |---|---|---|
-| `ha_tracked_entities` | _(empty)_ | Comma-separated list of `device_tracker.*` entity IDs to track. Leave empty to disable automatic tracking. Optionally add a `:Name` suffix to assign a device to a specific user (see [Multi-user](#multiple-household-members) above). Find your entity IDs in HA under **Developer Tools → States**. |
+| `ha_tracked_entities` | _(empty)_ | Comma-separated list of `device_tracker.*` entity IDs to track. Leave empty to disable automatic tracking. Optionally add a `:ha_user_id` suffix (the person's actual Home Assistant user ID, not their name) to route a device to their account — see [Multiple household members](#multiple-household-members) above. Find your entity IDs in HA under **Developer Tools → States**. |
 | `ha_min_distance` | `10` | Minimum distance in meters a device must move before the new position is recorded (0-1000). Filters GPS drift when stationary — typical drift is 3-15m. Set to `0` to disable and record every position change. |
 
 ### Reverse Geocoding
