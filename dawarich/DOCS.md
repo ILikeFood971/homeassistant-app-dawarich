@@ -82,6 +82,7 @@ Reverse geocoding converts GPS coordinates into place names. Disabled by default
 - **`application_hosts`** must include the hostname/IP you use to access the UI, or Rails will reject requests (not needed for ingress)
 - **`secret_key_base`** is auto-generated on first start and stored in `/data/dawarich/secret_key_base` — sessions are invalidated if this file is deleted
 - **Home Assistant ingress** identifies the user from the trusted HA ingress headers and creates a matching Dawarich user on first access
+- Ingress users are matched to Home Assistant identity. HA owner/admin users are promoted to Dawarich admins, HA user metadata is stored in the user's Dawarich settings, and a Dawarich family is created or reused from the HA home/location name.
 - **Admin user** is still created on first start with the configured email/password for direct access fallback. The password is only set on creation — changing it in the app config won't update an existing user. Use the Dawarich UI to change passwords.
 
 ## Data Persistence
