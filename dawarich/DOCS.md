@@ -48,16 +48,16 @@ The app subscribes to Home Assistant's real-time event stream and pushes locatio
 ha_tracked_entities: "device_tracker.my_phone"
 ```
 
-**Multi-user** — create separate Dawarich users per person by adding a `:Name` suffix:
+**Multi-user** — route each device to its owner's Home Assistant account by adding a `:ha_user_id` suffix:
 ```
-ha_tracked_entities: "device_tracker.my_phone:Alice, device_tracker.partner_phone:Bob"
+ha_tracked_entities: "device_tracker.my_phone:USER_ID_ALICE, device_tracker.partner_phone:USER_ID_BOB"
 ```
 
-This creates `alice@dawarich.local` and `bob@dawarich.local` with default password `changemeplease`. Each device's location data is sent to its own user. Users can change their password after first login via the Dawarich settings page. Once multiple users exist, you can use Dawarich's built-in **Family** feature to see everyone on a shared map with different colors.
+The suffix must be the person's Home Assistant user ID, not their display name. Find it under Settings → People → Users, click the user, and copy the ID from the URL (`/config/users/edit/<user_id>`). This is the same ID that Home Assistant's ingress proxy sends when that person opens the Dawarich panel from the sidebar, so the resulting `ha-<user_id>@homeassistant.local` account is the exact account they're auto-logged into — not a separate one. If they haven't opened the panel yet, the account is created here instead, with the configured default password (only usable for direct, non-ingress login). Once multiple users exist, you can use Dawarich's built-in **Family** feature to see everyone on a shared map with different colors.
 
-Entities without a `:Name` suffix use the admin user. You can mix both styles:
+Entities without a `:ha_user_id` suffix use the admin user. You can mix both styles:
 ```
-ha_tracked_entities: "device_tracker.my_phone:Alice, device_tracker.tablet"
+ha_tracked_entities: "device_tracker.my_phone:USER_ID_ALICE, device_tracker.tablet"
 ```
 
 #### How It Works

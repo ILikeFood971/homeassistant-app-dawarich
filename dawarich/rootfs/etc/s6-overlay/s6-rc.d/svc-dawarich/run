@@ -64,11 +64,18 @@ if [ -n "$ADMIN_EMAIL" ] && [ -n "$ADMIN_PASSWORD" ]; then
 fi
 
 # --- Per-entity API key setup for multi-user device tracking ---
+# The suffix after ":" is a Home Assistant user ID (not a free-text name).
+# We build the same "ha-<user_id>@homeassistant.local" email that
+# HomeAssistantIngressAuth.user_for() creates when that HA user opens the
+# ingress panel, so tracked-entity data lands on the SAME Dawarich account
+# the person is auto-logged into, instead of a disconnected local account.
+# Find a user's HA ID under Settings, People, Users, click the user;
+# the ID is in the URL, e.g. /config/users/edit/<user_id>.
 mkdir -p /data/dawarich/api_keys
 HA_TRACKED_ENTITIES=$(cat /var/run/s6/container_environment/HA_TRACKED_ENTITIES 2>/dev/null || echo "")
 if [ -n "$HA_TRACKED_ENTITIES" ]; then
   # Build list of users to create and entity→key mappings
-  declare -A USER_ENTITIES  # name → space-separated entity_ids
+  declare -A USER_ENTITIES  # ha_user_id → space-separated entity_ids
   ADMIN_ENTITIES=""          # entity_ids that use the admin user
 
   IFS=',' read -ra ENTITY_LIST <<< "$HA_TRACKED_ENTITIES"
@@ -78,15 +85,15 @@ if [ -n "$HA_TRACKED_ENTITIES" ]; then
 
     if echo "$entry" | grep -q ':'; then
       entity_id="${entry%%:*}"
-      raw_name="${entry#*:}"
-      raw_name=$(echo "$raw_name" | xargs)  # trim
-      # Sanitize name: lowercase, only a-z0-9 and hyphens
-      clean_name=$(echo "$raw_name" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]//g')
-      if [ -z "$clean_name" ]; then
-        # Empty name after sanitization → use admin
+      raw_id="${entry#*:}"
+      raw_id=$(echo "$raw_id" | xargs)  # trim
+      # Sanitize: lowercase, only a-z0-9 (HA user IDs are lowercase hex)
+      clean_id=$(echo "$raw_id" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]//g')
+      if [ -z "$clean_id" ]; then
+        # Empty id after sanitization → use admin
         ADMIN_ENTITIES="${ADMIN_ENTITIES} ${entity_id}"
       else
-        USER_ENTITIES["$clean_name"]="${USER_ENTITIES[$clean_name]:-} ${entity_id}"
+        USER_ENTITIES["$clean_id"]="${USER_ENTITIES[$clean_id]:-} ${entity_id}"
       fi
     else
       ADMIN_ENTITIES="${ADMIN_ENTITIES} ${entry}"
@@ -96,7 +103,7 @@ if [ -n "$HA_TRACKED_ENTITIES" ]; then
   # Remove stale API key files from previous config
   rm -f /data/dawarich/api_keys/*
 
-  # Assign admin API key to entities with no name suffix
+  # Assign admin API key to entities with no id suffix
   ADMIN_API_KEY=$(cat /data/dawarich/api_key 2>/dev/null || echo "")
   for entity_id in $ADMIN_ENTITIES; do
     entity_id=$(echo "$entity_id" | xargs)
@@ -105,14 +112,14 @@ if [ -n "$HA_TRACKED_ENTITIES" ]; then
     echo "HA Multi-User: ${entity_id} → admin user"
   done
 
-  # Build Ruby script for creating named users (single rails runner call)
+  # Build Ruby script for creating/matching HA-mapped users (single rails runner call)
   if [ ${#USER_ENTITIES[@]} -gt 0 ]; then
     RUBY_SCRIPT=""
 
-    for name in "${!USER_ENTITIES[@]}"; do
-      email="${name}@dawarich.local"
+    for ha_user_id in "${!USER_ENTITIES[@]}"; do
+      email="ha-${ha_user_id}@homeassistant.local"
       password="changemeplease"
-      entities="${USER_ENTITIES[$name]}"
+      entities="${USER_ENTITIES[$ha_user_id]}"
 
       RUBY_SCRIPT+="begin\n"
       RUBY_SCRIPT+="  user = User.find_or_create_by!(email: '${email}') do |u|\n"
